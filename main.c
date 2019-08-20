@@ -2,8 +2,10 @@
 #include<time.h>
 #include<stdlib.h>
 
+//defines the total no of cards
 #define MAX_CARDS 52
 
+//enum to store the card names
 typedef enum
 {
     TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN,
@@ -191,6 +193,8 @@ void beginGame(Card deck[],int *playerScore,int *dealerScore,int *currentCard)
     int i;
     printf("\nCards in Hand: \n");
     printf("\nPlayer's cards: ");
+    /*deals two cards to player initially by calling dealCards() function
+    by passing deck and the currentCard counter as arguments */
     for(i=0;i<2;i++)
     {
         *playerScore+=dealCards(deck,currentCard);
@@ -198,12 +202,15 @@ void beginGame(Card deck[],int *playerScore,int *dealerScore,int *currentCard)
     }
     printf("\nPlayer's Current Score : %d",*playerScore);
 
+     /*deals two cards to dealer initially by calling dealCards() function */
     printf("\nDealer's cards: ");
     for(i=0;i<2;i++)
     {
         *dealerScore+=dealCards(deck,currentCard);
     }
     printf("\nDealer's Current Score: %d",*dealerScore);
+    /*if the dealer's score is a perfect 21 then he gets a blackjack and automatically
+    wins the game regardless of the player's score and vice versa */
     if(*dealerScore == 21)
     {
         printf("\n\nIt's a BLACKJACK for the Dealer....\nDealer won...\n");
@@ -214,6 +221,7 @@ void beginGame(Card deck[],int *playerScore,int *dealerScore,int *currentCard)
         printf("\n\nIt's a BLACKJACK for the Player....\nPlayer won...\n");
         endGame();
     }
+    /*else if both the player's and dealer's score hits 21,then it's a tie */
     else if(*playerScore == 21 && *dealerScore == 21)
     {
         printf("\n\nDAMN YOU LUCK, IT'S A TIE\n");
@@ -221,24 +229,29 @@ void beginGame(Card deck[],int *playerScore,int *dealerScore,int *currentCard)
     }
 }
 
+//FUNCTION TO IMPLEMENT PLAYER'S TURN WHEN THE PLAYER CHOOSES TO HIT
 void playersTurn(Card deck[],int *playerScore,int *currentCard)
 {
+    //gets a new random card for player when the player chooses to hit
     printf("\nPlayer's new card: ");
     *playerScore+=dealCards(deck,currentCard);
     printf("\nPlayer's Current Score: %d",*playerScore);
 
 }
 
+//FUNCTION TO IMPLEMENT DEALER'S TURN
 void dealersTurn(Card deck[],int *dealerScore,int *currentCard)
 {
     printf("\n\nDealer's Turn...\n");
     while(*dealerScore <=21)
     {
+        //the dealer will choose to stay if hits soft 17 i.e., his score is between 17 and 21
         if(*dealerScore > 17)
         {
             printf("\nDealer chose to STAY...");
             return;
         }
+        //else the dealer will ask for a new card
         else
         {
             printf("\nDealer's new card: ");
@@ -254,25 +267,30 @@ void dealersTurn(Card deck[],int *dealerScore,int *currentCard)
 
 }
 
-
+//FUCNTION TO CHECK THE WINNER OF THE GAME
 void checkWinner(int playerScore,int dealerScore)
 {
+        //if playerScore is greater than dealerScore and less than equal to 21, then player wins
         if(playerScore > dealerScore  &&  playerScore <= 21)
         {
             printf("\n\nCONGRATS BUDDY, YOU FINALLY BEAT OUR MASTER DEALER\nRespect...");
         }
+        //if playerScore is less than dealerScore and less than equal to 21, then dealer wins
         else if(playerScore < dealerScore && dealerScore <= 21)
         {
             printf("\n\nUH-OH, OUR MASTER DEALER THRASHED YOU.....\nSORRY BUDDY, BETTER LUCK NEXT TIME :( ");
         }
+        //if both playerScore and dealerScore are the same then it's a tie
         else if(playerScore==dealerScore)
         {
             printf("\nUH-OH, IT'S A TIE....");
         }
+        //if playerScore is above 21 then player loses
         else if(playerScore > 21)
         {
              printf("\n\nDamn , it's a BUST.....\nDealer Wins...\nBetter Luck Next Time....\n");
         }
+        //if dealerScore is above 21 then dealer loses
         else if(dealerScore > 21)
         {
              printf("\n\nYay , it's a BUST for the dealer.....\nPlayer Wins...\n");
@@ -281,6 +299,7 @@ void checkWinner(int playerScore,int dealerScore)
 
 }
 
+//FUNCTION TO END THE GAME
 void endGame()
 {
     char choice;
@@ -298,25 +317,30 @@ void endGame()
 //FUNCTION TO IMPLEMENT THE GAME
 void play()
 {
+    //declares an array of cards called deck of the type Card
     Card deck[MAX_CARDS];
     printf("\nStarting New Game...");
     printf("\n\nInitializing Deck....");
     deckInit(deck);
-    int playerScore=0,dealerScore=0,currentCard=0,gameTurn=1;
+    /*starts the game with player and dealer score as 0
+    the currentCard variable keeps track of the current card in the deck.It gets incremented gradually */
+    int playerScore=0,dealerScore=0,currentCard=0;
     char option;
     srand(time(NULL));
     printf("\n\nShuffling Deck...\n");
     shuffle(deck);
+    //begins the game by calling the beginGame function
     beginGame(deck,&playerScore,&dealerScore,&currentCard);
 
-
+            //loops until the player chooses to stay and the playerScore is less than 21
             while((option != 'S' || option !='s') && playerScore<=21 )
             {
                 printf("\n\nPlayer's Turn....\n");
                 printf("\nDo you want to HIT or STAY ???\n");
                 printf("Press 'H' to HIT or 'S' to STAY....\n ");
                 scanf(" %c",&option);
-
+                /*if the player chooses to hit the player will then
+                get a new random card */
                 if(option == 'H' || option == 'h')
                 {
                     playersTurn(deck,&playerScore,&currentCard);
@@ -325,6 +349,7 @@ void play()
                         checkWinner(playerScore,dealerScore);
                         endGame();
                     }
+                    //after player's turn ends ,the dealer's turn begins immediately
                     dealersTurn(deck,&dealerScore,&currentCard);
                     if(dealerScore > 21)
                     {
@@ -334,6 +359,7 @@ void play()
 
                 }
 
+                /*if the player chooses to stay, then the dealer's turn begins immediately */
                 if(option == 'S' || option == 's')
                 {
                     dealersTurn(deck,&dealerScore,&currentCard);
@@ -351,6 +377,7 @@ void play()
 
 int main()
 {
+    //calls the menu function to begin the game
     menu();
 
     return 0;
